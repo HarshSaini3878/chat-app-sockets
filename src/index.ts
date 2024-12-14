@@ -29,7 +29,7 @@ wss.on("connection", (socket) => {
         const sockets = websocketMap.get(roomId);
         if (sockets) {
           sockets.forEach((clientSocket) => {
-            if (clientSocket.readyState === WebSocket.OPEN) {
+            if (clientSocket !== socket && clientSocket.readyState === WebSocket.OPEN) {
               clientSocket.send(
                 JSON.stringify({
                   type: "chat",
