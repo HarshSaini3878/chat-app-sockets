@@ -5,13 +5,15 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "npx tsc -b && node ./dist/index.js"
+    "dev": "npx tsc -b && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "typescript": "^5.7.2"
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.2",
+    "ws": "^8.18.0"
   }
 }
