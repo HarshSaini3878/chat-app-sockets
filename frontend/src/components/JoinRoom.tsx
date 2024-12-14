@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../components/ui/button"; // Assuming Button component exists
 import { Input } from "../components/ui/input"; // Assuming Input component exists
+import { Link } from "react-router-dom";
 
 export default function JoinRoom() {
   const [roomId, setRoomId] = useState("");
@@ -31,7 +32,7 @@ export default function JoinRoom() {
         <div className="mt-4 text-center">
           <p>
             Don't have a room ID?{" "}
-            <a href="/create" className="text-blue-600">Create a Room</a>
+            <Link to="/create" className="text-blue-600">Create a Room</Link>
           </p>
         </div>
       </div>
