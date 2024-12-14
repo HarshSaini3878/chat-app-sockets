@@ -12,4 +12,8 @@ wss.on("connection",(socket)=>{
         })
        
     })
+
+    socket.on("disconnect",()=>{
+        allSockets= allSockets.filter(x=>x!==socket)
+     })
 })
