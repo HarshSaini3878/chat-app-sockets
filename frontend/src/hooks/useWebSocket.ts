@@ -1,7 +1,7 @@
 // hooks/useWebSocket.ts
 import { useEffect } from "react";
 import { useRecoilState } from "recoil";
-import { websocketAtom } from "../atoms/websocketAtom";
+import { websocketAtom } from "../atom/WebSocketAtom";
 
 export const useWebSocket = (url: string) => {
   const [websocket, setWebSocket] = useRecoilState(websocketAtom);
