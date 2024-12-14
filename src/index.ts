@@ -21,6 +21,29 @@ wss.on("connection", (socket) => {
         // Add the socket to the room
         websocketMap.get(roomId)?.push(socket);
         console.log(`Socket added to room ${roomId}`);
+      } else if (ParsedMessage.type === "chat") {
+        const roomId = ParsedMessage.payload.roomId;
+        const chatMessage = ParsedMessage.payload.message;
+
+        // Broadcast the message to all sockets in the room
+        const sockets = websocketMap.get(roomId);
+        if (sockets) {
+          sockets.forEach((clientSocket) => {
+            if (clientSocket.readyState === WebSocket.OPEN) {
+              clientSocket.send(
+                JSON.stringify({
+                  type: "chat",
+                  payload: {
+                    roomId,
+                    message: chatMessage,
+                  },
+                })
+              );
+            }
+          });
+        } else {
+          console.log(`Room ${roomId} not found.`);
+        }
       } else {
         console.log(`Unhandled message type: ${ParsedMessage.type}`);
       }
