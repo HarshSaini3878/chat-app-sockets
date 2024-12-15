@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Send } from 'lucide-react'
+import { motion } from "framer-motion"
 
 export default function ChatRoom() {
   const { roomId } = useParams<{ roomId: string }>()
@@ -82,42 +83,45 @@ export default function ChatRoom() {
   }
 
   return (
-    <Card className="flex flex-col h-screen">
-      <CardHeader className="border-b">
-        <CardTitle>Chat Room: {roomId}</CardTitle>
+    <Card className="flex flex-col h-screen border-none">
+      <CardHeader className="border-b bg-gray-800 text-white">
+        <CardTitle className="text-xl font-semibold">Chat Room: {roomId}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden p-0">
+      <CardContent className="flex-1 p-0 bg-gray-100 overflow-hidden">
         <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+          <motion.div className="space-y-4" initial="initial" animate="animate" exit="exit">
             {messages.map((msg, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`flex ${
-                  msg.type === "sent" ? "justify-end" : "justify-start"
-                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}
               >
-                <div className={`flex items-end space-x-2 max-w-[75%]`}>
+                <div className="flex items-end space-x-2 max-w-[75%]">
                   {msg.type === "received" && (
-                    <Avatar className="w-6 h-6">
+                    <Avatar className="w-8 h-8">
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
                   )}
-                  <div
-                    className={`p-3 rounded-lg ${
-                      msg.type === "sent"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
+                  <motion.div
+                    className={`p-3 rounded-lg text-sm leading-6 max-w-full break-words ${msg.type === "sent"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-gray-300 text-black"}`}
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 200 }}
                   >
                     {msg.message}
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </ScrollArea>
       </CardContent>
-      <CardFooter className="border-t p-4">
+      <CardFooter className="border-t bg-white p-4 shadow-lg">
         <form onSubmit={(e) => e.preventDefault()} className="flex w-full items-center space-x-2">
           <Input
             type="text"
@@ -125,10 +129,10 @@ export default function ChatRoom() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1"
+            className="flex-1 p-2 rounded-lg border focus:ring-2 focus:ring-primary"
           />
-          <Button type="submit" size="icon" onClick={handleSendMessage}>
-            <Send className="h-4 w-4" />
+          <Button type="submit" size="icon" onClick={handleSendMessage} className="p-2 rounded-lg bg-primary text-white">
+            <Send className="h-5 w-5" />
             <span className="sr-only">Send message</span>
           </Button>
         </form>
@@ -136,4 +140,3 @@ export default function ChatRoom() {
     </Card>
   )
 }
-
