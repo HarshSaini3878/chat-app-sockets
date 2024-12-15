@@ -1,7 +1,9 @@
-// server.js
 import WebSocket, { WebSocketServer } from "ws";
 
-const websocketMap: Map<string, WebSocket[]> = new Map(); // Rooms map
+// Map to store WebSocket connections for each room (key = roomId, value = array of sockets)
+const websocketMap: Map<string, WebSocket[]> = new Map();
+
+// Create WebSocket Server on port 8080
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", (socket) => {
@@ -11,42 +13,31 @@ wss.on("connection", (socket) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
 
-      if (parsedMessage.type === "create") {
+     
+      if (parsedMessage.type === "join") {
         const roomId = parsedMessage.payload.roomId;
 
-        // Create a new room if it doesn't exist
+        // If room does not exist, create a new room and join
         if (!websocketMap.has(roomId)) {
           websocketMap.set(roomId, []);
-          console.log(`Room ${roomId} created.`);
-        }
-      } else if (parsedMessage.type === "join") {
-        const roomId = parsedMessage.payload.roomId;
-
-        if (!websocketMap.has(roomId)) {
-          console.error(`Room ${roomId} does not exist.`);
-          socket.send(
-            JSON.stringify({
-              type: "error",
-              payload: { message: `Room ${roomId} does not exist.` },
-            })
-          );
-          return;
+          console.log(`Room ${roomId} created and client joined.`);
         }
 
-        // Add client to the room
+        // Add client to the specified room
         websocketMap.get(roomId)?.push(socket);
         console.log(`Client joined room ${roomId}`);
+
+        // Acknowledge successful room join
+        console.log(`Successfully joined room ${roomId}.`)
+        
       } else if (parsedMessage.type === "chat") {
         const { roomId, message: chatMessage } = parsedMessage.payload;
 
-        // Broadcast the message to all sockets in the room except the sender
+        // Broadcast the chat message to all clients in the room, except the sender
         const sockets = websocketMap.get(roomId);
         if (sockets) {
           sockets.forEach((clientSocket) => {
-            if (
-              clientSocket.readyState === WebSocket.OPEN &&
-              clientSocket !== socket
-            ) {
+            if (clientSocket.readyState === WebSocket.OPEN && clientSocket !== socket) {
               clientSocket.send(
                 JSON.stringify({
                   type: "chat",
@@ -55,8 +46,6 @@ wss.on("connection", (socket) => {
               );
             }
           });
-        } else {
-          console.log(`Room ${roomId} not found.`);
         }
       }
     } catch (error) {
@@ -64,15 +53,16 @@ wss.on("connection", (socket) => {
     }
   });
 
+  // Handle client disconnect
   socket.on("close", () => {
     console.log("Client disconnected!");
 
-    // Remove client from all rooms
+    // Remove the socket from all rooms
     websocketMap.forEach((sockets, roomId) => {
       const updatedSockets = sockets.filter((s) => s !== socket);
       websocketMap.set(roomId, updatedSockets);
 
-      // Delete room if it's empty
+      // If the room is empty, delete the room
       if (updatedSockets.length === 0) {
         websocketMap.delete(roomId);
         console.log(`Room ${roomId} deleted.`);

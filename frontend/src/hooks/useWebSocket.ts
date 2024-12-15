@@ -1,35 +1,34 @@
-// hooks/useWebSocket.ts
-import { useEffect } from "react";
-import { useRecoilState } from "recoil";
-import { websocketAtom } from "../atom/WebSocketAtom";
+import { useState, useEffect } from "react";
 
-export const useWebSocket = (url: string) => {
-  const [websocket, setWebSocket] = useRecoilState(websocketAtom);
+// Custom hook to manage WebSocket connection
+export function useWebSocket(url: string) {
+  const [websocket, setWebSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!websocket) {
-      const ws = new WebSocket(url);
+    // Create a WebSocket connection
+    const ws = new WebSocket(url);
 
-      ws.onopen = () => {
-        console.log("WebSocket connected");
-      };
+    ws.onopen = () => {
+      console.log("WebSocket connection established.");
+    };
 
-      ws.onclose = () => {
-        console.log("WebSocket closed");
-        setWebSocket(null);
-      };
+    ws.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
 
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
 
-      setWebSocket(ws);
+    setWebSocket(ws);
 
-      return () => {
+    // Cleanup on unmount or when the url changes
+    return () => {
+      if (ws) {
         ws.close();
-      };
-    }
-  }, [websocket, setWebSocket, url]);
+      }
+    };
+  }, [url]);
 
   return websocket;
-};
+}
